@@ -1,0 +1,1 @@
+from games.rock_paper_scissors import RockPaperScissors
