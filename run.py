@@ -4,15 +4,17 @@ import logging
 import settings
 
 from server import Server
-from games.rock_paper_scissors import RockPaperScissors
+from games import RockPaperScissors
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    game_server = Server(settings.PLAYERS, RockPaperScissors)
+    loop = asyncio.get_event_loop()
+    # TODO move players to game settings
+    game_server = Server(loop, RockPaperScissors, players=settings.PLAYERS, timeout=settings.TIMEOUT)
     serve = game_server.serve(settings.HOST, settings.PORT)
-    asyncio.get_event_loop().run_until_complete(serve)
-    asyncio.get_event_loop().run_forever()
+    loop.run_until_complete(serve)
+    loop.run_forever()
 
 
 if __name__ == '__main__':
