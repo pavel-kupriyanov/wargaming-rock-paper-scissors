@@ -6,7 +6,12 @@ from uuid import uuid4
 import websockets
 
 from connection import Connection
-from helpers.constants import INVALID_FORMAT
+
+
+class Error:
+    INVALID_FORMAT = "Invalid format"
+    ALREADY_CONNECTED = "User already connected now"
+    NICKNAME_USED = "Nickname already used"
 
 
 class Server:
@@ -17,8 +22,12 @@ class Server:
         self.session_class = session_class
         self.timeout = timeout
         self.connections = []
-        self.sessions = []
+        self.users = dict()
         self.lock = asyncio.Lock()
+
+    @property
+    def meta(self):
+        return {"players": self.players, "game": self.session_class.Meta.game_name}
 
     def serve(self, host, port):
         logging.info(f"Server started on {host}:{port}")
@@ -26,10 +35,9 @@ class Server:
 
     async def handle(self, ws, _):
         logging.info(f"Received connection from {ws.remote_address}.")
-        connection = Connection(self.loop, ws, meta=self.get_meta())
+        connection = Connection(ws, self.loop, meta=self.meta)
 
-        is_auth = await self.auth(connection)
-        if not is_auth:
+        if not await self.auth(connection):
             return
 
         logging.info(f"Success auth: {connection}.")
@@ -37,11 +45,11 @@ class Server:
 
         async with self.lock:
             self.connections.append(connection)
-            if self.is_ready():
+            if len(self.connections) == self.players:
                 session = self.prepare_session(self.connections[:self.players])
 
         if session:
-            await self.start_session(session)
+            await session.play()
         else:
             await self.keep_connection(connection)
 
@@ -49,45 +57,55 @@ class Server:
         try:
             await asyncio.wait_for(self._auth(connection), timeout=self.timeout)
         except (ConnectionError, TimeoutError):
-            logging.warning(f"Connection {connection.ws.remote_address} fails.")
+            logging.warning(f"Connection {connection.ws.remote_address} failed.")
             return False
         return True
 
     async def _auth(self, connection):
         async for message in connection.messages:
-            payload = message.get("payload")
-            if message.get("action") != "auth" or payload.get("nickname") is None:
-                await connection.send("auth", False, INVALID_FORMAT)
-                continue
-            token = payload.get("token")
-            connection.id = token if token else str(uuid4())
-            connection.nickname = payload.get("nickname")
-            await connection.send("auth", connection.id)
-            break
+            action, payload = message.get("action"), message.get("payload")
 
-    def is_ready(self):
-        return len(self.connections) >= self.players
+            if action != "auth" or not isinstance(payload, dict):
+                await connection.send("auth", {"status": False, "error": Error.INVALID_FORMAT})
+                continue
+
+            token, nickname = payload.get("token"), payload.get("nickname")
+            if nickname in {user.nickname for user in self.users.values() if user.connected_now}:
+                await connection.send("auth", {"status": False, "error": Error.NICKNAME_USED})
+                continue
+
+            user = self.users.get(token) or User(nickname)
+            if user.connected_now:
+                await connection.send("auth", {"status": False, "error": Error.ALREADY_CONNECTED})
+                continue
+
+            user.nickname = nickname
+            self.users[user.token] = user
+            user.connected_now = True
+            connection.user = user
+            await connection.send("auth", {"status": True})
+            break
 
     def prepare_session(self, connections):
         for conn in connections:
             self.connections.remove(conn)
         return self.session_class(self.loop, connections)
 
-    async def start_session(self, session):
-        logging.info(f"Created {session}.")
-        self.sessions.append(session)
-        await session.play()
-        self.sessions.remove(session)
-        logging.info(f"Closed session {session}.")
-
     async def keep_connection(self, connection):
         await connection.keep()
-        try:
+        if connection in self.connections:
             self.connections.remove(connection)
-        except ValueError:
-            # already removed
-            pass
         logging.info(f"Closed connection {connection.ws.remote_address}.")
 
-    def get_meta(self):
-        return {"players": self.players, "game": self.session_class.Meta.game_name}
+
+class User:
+
+    def __init__(self, nickname):
+        self.nickname = nickname
+        self.token = str(uuid4())
+        self.connected_now = False
+        self.win = 0
+        self.games = 0
+
+    def serialize(self):
+        return {"token": self.token, "nickname": self.nickname, "win": self.win, "games": self.games}

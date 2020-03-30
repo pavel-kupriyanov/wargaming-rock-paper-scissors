@@ -1,4 +1,4 @@
 HOST = 'localhost'
 PORT = 8888
-PLAYERS = 3
+PLAYERS = 2
 TIMEOUT = 60
