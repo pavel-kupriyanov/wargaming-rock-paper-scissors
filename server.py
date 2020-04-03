@@ -18,7 +18,7 @@ class Server:
 
     def __init__(self, loop, session_class, players=2, timeout=10):
         self.loop = loop
-        self.players = players
+        self.players_number = players
         self.session_class = session_class
         self.timeout = timeout
         self.connections = []
@@ -27,13 +27,22 @@ class Server:
 
     @property
     def meta(self):
-        return {"players": self.players, "game": self.session_class.Meta.game_name}
+        """
+        Server info
+        """
+        return {"players": self.players_number, "game": self.session_class.Meta.game_name}
 
     def serve(self, host, port):
+        """
+        Run web server
+        """
         logging.info(f"Server started on {host}:{port}")
         return websockets.serve(self.handle, host, port)
 
     async def handle(self, ws, _):
+        """
+        Handle websocket connection
+        """
         logging.info(f"Received connection from {ws.remote_address}.")
         connection = Connection(ws, self.loop, meta=self.meta)
 
@@ -45,8 +54,8 @@ class Server:
 
         async with self.lock:
             self.connections.append(connection)
-            if len(self.connections) == self.players:
-                session = self.prepare_session(self.connections[:self.players])
+            if len(self.connections) == self.players_number:
+                session = self.prepare_session(self.connections[:self.players_number])
 
         if session:
             await session.play()
@@ -54,6 +63,9 @@ class Server:
             await self.keep_connection(connection)
 
     async def auth(self, connection):
+        """
+        Try to auth user until timeout
+        """
         try:
             await asyncio.wait_for(self._auth(connection), timeout=self.timeout)
         except (ConnectionError, TimeoutError):
@@ -62,6 +74,9 @@ class Server:
         return True
 
     async def _auth(self, connection):
+        """
+        Auth logic
+        """
         async for message in connection.messages:
             action, payload = message.get("action"), message.get("payload")
 
@@ -87,11 +102,17 @@ class Server:
             break
 
     def prepare_session(self, connections):
+        """
+        Remove connections from queue and pass them to game session
+        """
         for conn in connections:
             self.connections.remove(conn)
         return self.session_class(self.loop, connections)
 
     async def keep_connection(self, connection):
+        """
+        Await until connection closed
+        """
         await connection.keep()
         if connection in self.connections:
             self.connections.remove(connection)
@@ -108,4 +129,7 @@ class User:
         self.games = 0
 
     def serialize(self):
+        """
+        User info to dict
+        """
         return {"token": self.token, "nickname": self.nickname, "win": self.win, "games": self.games}

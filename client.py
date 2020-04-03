@@ -18,9 +18,10 @@ async def session(nickname):
         response = json.loads(await websocket.recv())
         print(nickname, response)
         await websocket.send(json.dumps({"action": "pick", "payload": {"pick": "Rock"}}))
+        return
         response = json.loads(await websocket.recv())
         print(nickname, response)
-        await websocket.send(json.dumps({"action": "pick", "payload": None}))
+        await websocket.send(json.dumps({"action": "pick", "payload": {"pick": "Paper"}}))
         response = json.loads(await websocket.recv())
         print(nickname, response)
         await websocket.recv()
@@ -28,7 +29,7 @@ async def session(nickname):
 
 
 async def main():
-    tasks = [asyncio.create_task(session(str(i))) for i in range(3)]
+    tasks = [asyncio.create_task(session(str(i))) for i in range(2)]
     return await asyncio.wait(tasks)
 
 
