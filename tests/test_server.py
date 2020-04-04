@@ -77,7 +77,7 @@ class TestServer(aiounittest.AsyncTestCase):
 
     @long_time_test
     async def test_ERROR_timeout_auth(self):
-        self.server.timeout = 1
+        self.server.timeout = 0.2
         res = await self.server.auth(self.connection)
         self.assertEqual(False, res)
 
@@ -94,7 +94,7 @@ class TestServer(aiounittest.AsyncTestCase):
         conn1.user = User("Paul Atreides")
         self.server.connections = [conn1, conn2]
         task = asyncio.create_task(self.server.keep_connection(conn1))
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
         self.assertSequenceEqual([conn1, conn2], self.server.connections)
         await conn1.close()
         await task
@@ -104,7 +104,7 @@ class TestServer(aiounittest.AsyncTestCase):
     async def test_OK_wait_handle(self):
         asyncio.create_task(self.server.handle(self.ws, ""))
         self.write(self.ws, {"action": "auth", "payload": {"nickname": "Paul Atreides"}})
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
         self.assertIs(self.ws, self.server.connections[0].ws)
 
     @long_time_test
@@ -117,7 +117,7 @@ class TestServer(aiounittest.AsyncTestCase):
         ws2 = MockWebsocket()
         asyncio.create_task(self.server.handle(ws2, ""))
         self.write(ws2, {"action": "auth", "payload": {"nickname": "Vladimir Harkonnen"}})
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
         res1, res2 = self.read(ws1), self.read(ws2)
         self.assertSequenceEqual([], self.server.connections)
         self.assertEqual("Paul Atreides", res1.get("meta").get("user").get("nickname"))
@@ -132,7 +132,7 @@ class TestServer(aiounittest.AsyncTestCase):
             asyncio.create_task(self.server.handle(ws, ""))
             self.write(ws, {"action": "auth", "payload": {"nickname": str(num)}})
             sockets.append(ws)
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
         results = []
         for ws in sockets:
             res = self.read(ws)
@@ -148,7 +148,7 @@ class TestServer(aiounittest.AsyncTestCase):
         self.server.timeout = 1
         asyncio.create_task(self.server.handle(self.ws, ""))
         self.write(self.ws, {"action": "infiltration", "payload": {"nickname": "Vladimir Harkonnen"}})
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
         self.assertSequenceEqual([], self.server.connections)
 
     @long_time_test
@@ -156,11 +156,11 @@ class TestServer(aiounittest.AsyncTestCase):
         ws1, ws2 = MockWebsocket(), MockWebsocket()
         asyncio.create_task(self.server.handle(ws1, ""))
         self.write(ws1, {"action": "auth", "payload": {"nickname": "1"}})
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
         await ws1.close()
         asyncio.create_task(self.server.handle(ws2, ""))
         self.write(ws2, {"action": "auth", "payload": {"nickname": "2"}})
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.2)
         self.assertIs(ws2, self.server.connections[0].ws)
 
 

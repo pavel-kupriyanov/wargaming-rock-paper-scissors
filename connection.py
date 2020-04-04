@@ -39,14 +39,6 @@ class Connection:
         message = {"action": action, "payload": payload, "meta": self.meta}
         await self.ws.send(json.dumps(message))
 
-    @property
-    async def messages(self):
-        """
-        Async read from socket
-        """
-        async for raw_message in self.ws:
-            yield parse_message(raw_message)
-
     async def keep(self):
         """
         Run until socket closed
