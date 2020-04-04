@@ -4,6 +4,13 @@ import json
 import websockets
 
 
+class Client:
+
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+
 async def session(nickname):
     uri = "ws://localhost:8888"
     async with websockets.connect(uri) as websocket:
@@ -18,7 +25,6 @@ async def session(nickname):
         response = json.loads(await websocket.recv())
         print(nickname, response)
         await websocket.send(json.dumps({"action": "pick", "payload": {"pick": "Rock"}}))
-        return
         response = json.loads(await websocket.recv())
         print(nickname, response)
         await websocket.send(json.dumps({"action": "pick", "payload": {"pick": "Paper"}}))

@@ -61,45 +61,45 @@ class Server:
             await session.play()
         else:
             await self.keep_connection(connection)
+        connection.user.connected_now = False
 
     async def auth(self, connection):
         """
         Try to auth user until timeout
         """
         try:
-            await asyncio.wait_for(self._auth(connection), timeout=self.timeout)
+            return await asyncio.wait_for(self._auth(connection), timeout=self.timeout)
         except (ConnectionError, TimeoutError):
             logging.warning(f"Connection {connection.ws.remote_address} failed.")
             return False
-        return True
 
     async def _auth(self, connection):
         """
         Auth logic
         """
-        async for message in connection.messages:
-            action, payload = message.get("action"), message.get("payload")
+        message = await connection.recv()
+        action, payload = message.get("action"), message.get("payload")
 
-            if action != "auth" or not isinstance(payload, dict):
-                await connection.send("auth", {"status": False, "error": Error.INVALID_FORMAT})
-                continue
+        if action != "auth" or not isinstance(payload, dict):
+            await connection.send("auth", {"status": False, "error": Error.INVALID_FORMAT})
+            return False
 
-            token, nickname = payload.get("token"), payload.get("nickname")
-            if nickname in {user.nickname for user in self.users.values() if user.connected_now}:
-                await connection.send("auth", {"status": False, "error": Error.NICKNAME_USED})
-                continue
+        token, nickname = payload.get("token"), payload.get("nickname")
+        if nickname in {user.nickname for user in self.users.values() if user.connected_now}:
+            await connection.send("auth", {"status": False, "error": Error.NICKNAME_USED})
+            return False
 
-            user = self.users.get(token) or User(nickname)
-            if user.connected_now:
-                await connection.send("auth", {"status": False, "error": Error.ALREADY_CONNECTED})
-                continue
+        user = self.users.get(token) or User(nickname)
+        if user.connected_now:
+            await connection.send("auth", {"status": False, "error": Error.ALREADY_CONNECTED})
+            return False
 
-            user.nickname = nickname
-            self.users[user.token] = user
-            user.connected_now = True
-            connection.user = user
-            await connection.send("auth", {"status": True})
-            break
+        user.nickname = nickname
+        self.users[user.token] = user
+        user.connected_now = True
+        connection.user = user
+        await connection.send("auth", {"status": True})
+        return True
 
     def prepare_session(self, connections):
         """
