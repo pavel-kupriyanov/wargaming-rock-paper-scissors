@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import websockets
 
-from connection import Connection
+from .connection import Connection
 
 
 class Error:
@@ -128,7 +128,7 @@ class User:
         self.win = 0
         self.games = 0
 
-    def serialize(self):
+    def to_dict(self):
         """
         User info to dict
         """

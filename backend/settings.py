@@ -2,4 +2,3 @@ HOST = 'localhost'
 PORT = 8888
 PLAYERS = 2
 TIMEOUT = 60
-RUN_TESTS_WITH_TIMEOUT = True

@@ -1,10 +1,10 @@
 import asyncio
 import logging
 
-import settings
+import backend.settings as settings
 
-from server import Server
-from games import RockPaperScissors
+from .server import Server
+from backend.games.rock_paper_scissors import RockPaperScissors
 
 
 def main():

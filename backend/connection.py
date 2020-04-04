@@ -22,7 +22,7 @@ class Connection:
         """
         meta = self._meta
         if self.user:
-            meta["user"] = self.user.serialize()
+            meta["user"] = self.user.to_dict()
         return meta
 
     async def recv(self):

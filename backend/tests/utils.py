@@ -1,10 +1,9 @@
 import asyncio
-from unittest.mock import Mock
+import json
 
-from aiounittest import futurized
-from aiounittest.mock import AsyncMockIterator
+from websockets.exceptions import ConnectionClosed
 
-import settings
+import backend.settings as settings
 
 
 class MockSession:
@@ -37,6 +36,7 @@ class MockWebsocket:
         self.input = []
         self.output = []
         self.connection_lost_waiter = self.ConnectionLostWaiter()
+        self.closed = False
 
     def _write_into(self, message):
         self.input.append(message)
@@ -45,6 +45,8 @@ class MockWebsocket:
         return self.output.pop()
 
     async def recv(self):
+        if self.closed:
+            raise ConnectionClosed(1000, "bar")
         while True:
             try:
                 return self.input.pop()
@@ -52,15 +54,18 @@ class MockWebsocket:
                 await asyncio.sleep(1)
 
     async def send(self, message):
+        if self.closed:
+            raise ConnectionClosed(1000, "bar")
         self.output.append(message)
 
     async def close(self):
+        self.closed = True
         self.connection_lost_waiter.callback(1)
 
 
-def long_time_test(func):
-    async def wrap(self, *args, **kwargs):
-        if settings.RUN_TESTS_WITH_TIMEOUT:
-            return await func(self, *args, **kwargs)
+def write(ws, message):
+    ws._write_into(json.dumps(message))
 
-    return wrap
+
+def read(ws):
+    return json.loads((ws._read_from()))
