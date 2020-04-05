@@ -49,7 +49,10 @@ class RockPaperScissors:
             winner = self.get_winner(correct_picks)
             choices = [{"nickname": pick.player.user.nickname, "choice": pick.choice} for pick in picks]
             logging.info(f"Picks: {choices}.")
-            await self.send_for_all(Action.GAME_RESULT, {"choices": choices, "winner": winner, "round": current_round})
+            message = {"choices": choices, "winner": None, "round": current_round}
+            if winner:
+                message["winner"] = winner.player.user.nickname
+            await self.send_for_all(Action.GAME_RESULT, message)
             if not correct_picks:
                 await self.close_game(Response.ALL_PICKS_IS_NONE)
                 break

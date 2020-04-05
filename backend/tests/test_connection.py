@@ -4,8 +4,7 @@ import json
 import aiounittest
 
 from .utils import MockWebsocket
-from backend.server import User
-from backend.connection import Connection, parse_message
+from backend import User, Connection, parse_message
 
 
 class TestConnection(aiounittest.AsyncTestCase):

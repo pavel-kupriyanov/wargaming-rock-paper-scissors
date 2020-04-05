@@ -4,10 +4,8 @@ import aiounittest
 from websockets.exceptions import ConnectionClosed
 
 from .utils import MockSession
-from ..player import Player
-from ..utils import Choice, Pick, Action
-from backend.connection import Connection
-from backend.server import User
+from backend import Connection, User
+from backend.games.rock_paper_scissors import Player, Choice, Pick, Action
 from backend.tests.utils import MockWebsocket, read, write
 
 
@@ -74,7 +72,7 @@ class PlayerTest(aiounittest.AsyncTestCase):
     async def test_remove_if_not_ready_ok(self):
         asyncio.create_task(self.player.keep())
         await asyncio.sleep(0.1)
-        write(self.ws, {"action": Action.READY_CHECK, "payload":{}})
+        write(self.ws, {"action": Action.READY_CHECK, "payload": {}})
         res = await self.player.remove_if_not_ready()
         self.assertTrue(res)
 

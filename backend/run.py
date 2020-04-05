@@ -1,9 +1,7 @@
 import asyncio
 import logging
 
-import backend.settings as settings
-
-from .server import Server
+from backend import Server, settings
 from backend.games.rock_paper_scissors import RockPaperScissors
 
 

@@ -3,9 +3,7 @@ import asyncio
 import aiounittest
 import websockets
 
-import backend.settings as settings
-from backend.server import Server, Error, User
-from backend.connection import Connection
+from backend import Server, Error, User, Connection, settings
 
 from .utils import MockSession, MockWebsocket, write, read
 
@@ -49,6 +47,7 @@ class TestServer(aiounittest.AsyncTestCase):
     async def test_nickname_used_under_auth(self):
         write(self.ws, {"action": "auth", "payload": {"nickname": "Paul Atreides"}})
         await self.server._auth(self.connection)
+        read(self.ws)
         write(self.ws, {"action": "auth", "payload": {"nickname": "Paul Atreides"}})
         await self.server._auth(self.connection)
         self.assertEqual(Error.NICKNAME_USED, read(self.ws).get("payload").get("error"))
@@ -121,7 +120,11 @@ class TestServer(aiounittest.AsyncTestCase):
         await asyncio.sleep(0.1)
         results = []
         for ws in sockets:
-            res = read(ws)
+            read(ws)
+            try:
+                res = read(ws)
+            except IndexError:
+                continue
             if res["action"] == "game":
                 results.append(res)
         # two players in queue (42 / 8 = 5 (2))

@@ -3,8 +3,6 @@ import json
 
 from websockets.exceptions import ConnectionClosed
 
-import backend.settings as settings
-
 
 class MockSession:
     class Meta:
@@ -42,14 +40,14 @@ class MockWebsocket:
         self.input.append(message)
 
     def _read_from(self):
-        return self.output.pop()
+        return self.output.pop(0)
 
     async def recv(self):
         if self.closed:
             raise ConnectionClosed(1000, "bar")
         while True:
             try:
-                return self.input.pop()
+                return self.input.pop(0)
             except IndexError:
                 await asyncio.sleep(1)
 
