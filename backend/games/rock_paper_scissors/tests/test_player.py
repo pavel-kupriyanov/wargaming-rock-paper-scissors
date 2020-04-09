@@ -4,9 +4,9 @@ import aiounittest
 from websockets.exceptions import ConnectionClosed
 
 from .utils import MockSession
-from backend import Connection, User
+from backend.server import Connection, User
 from backend.games.rock_paper_scissors import Player, Choice, Pick, Action
-from backend.tests.utils import MockWebsocket, read, write
+from backend.server.tests.utils import MockWebsocket, read, write
 
 
 class PlayerTest(aiounittest.AsyncTestCase):

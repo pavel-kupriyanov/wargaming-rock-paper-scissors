@@ -3,14 +3,14 @@ import asyncio
 import aiounittest
 import websockets
 
-from backend import Server, Error, User, Connection, settings
-
+from ..server import Server, Error, User, Connection
+from ..settings import HOST, PORT
 from .utils import MockSession, MockWebsocket, write, read
 
 
 class TestServer(aiounittest.AsyncTestCase):
-    host = settings.HOST
-    port = settings.PORT
+    host = HOST
+    port = PORT
 
     def setUp(self):
         loop = asyncio.get_event_loop()

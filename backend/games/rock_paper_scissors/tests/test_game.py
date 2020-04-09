@@ -2,8 +2,8 @@ import asyncio
 
 import aiounittest
 
-from backend import User, Connection
-from backend.tests.utils import MockWebsocket, read, write
+from backend.server import User, Connection
+from backend.server.tests.utils import MockWebsocket, read, write
 from backend.games.rock_paper_scissors import RockPaperScissors, Action, Choice, Pick, Response
 
 
