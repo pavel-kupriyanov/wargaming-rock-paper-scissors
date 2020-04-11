@@ -8,7 +8,7 @@ export const GAME_STATE = {
 };
 
 
-export const RESPONSE_ACTION = {
+export const WS_ACTION = {
   AUTH: "auth",
   READY_CHECK: "ready_check",
   PICK: "pick",

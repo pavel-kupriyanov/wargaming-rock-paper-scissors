@@ -1,24 +1,18 @@
-import {dispatch, showError} from "./utils";
-import {loginFailure, loginSuccess} from "./actions";
-import {RESPONSE_ACTION} from "./constants";
+import {dispatch, displayError} from "./utils";
+import {loginFailure, loginSuccess, closeConnection} from "./actions";
+import {WS_ACTION} from "./constants";
 
 
 let ws = null;
 
-export const disconnect = () => {
-  console.log("disconnect")
-};
-
-export const error = () => {
-  console.log("err")
-};
-
-export const processMessage = message => {
-  const {action, payload} = JSON.parse(message.data);
+export const receive = message => {
+  const {action, payload, meta} = JSON.parse(message.data);
   switch (action) {
-    case RESPONSE_ACTION.AUTH:
+    case WS_ACTION.AUTH:
       if (payload.status) {
-        dispatch(loginSuccess())
+        dispatch(loginSuccess(meta.user));
+        localStorage.setItem("nickname", meta.user.nickname);
+        localStorage.setItem("token", meta.user.token);
       } else {
         dispatch(loginFailure(payload.error))
       }
@@ -27,7 +21,7 @@ export const processMessage = message => {
       break
   }
   if (payload.error) {
-    showError(payload.error)
+    displayError(payload.error)
   }
 };
 
@@ -41,9 +35,15 @@ export const getWs = async () => {
     } catch (e) {
       reject(e);
     }
-    ws.onclose = disconnect;
-    ws.onerror = error;
-    ws.onmessage = processMessage;
+    ws.onmessage = receive;
+    ws.onclose = () => {
+      console.log("disconnect");
+      ws = null;
+      dispatch(closeConnection())
+    };
+    ws.onerror = (err) => {
+      console.log("err", err)
+    };
     ws.onopen = () => {
       resolve(ws);
     };
@@ -51,6 +51,10 @@ export const getWs = async () => {
 };
 
 export const send = (action, payload) => {
-  console.log(ws);
+  console.log(action, payload);
   ws.send(JSON.stringify({action, payload}));
+};
+
+export const close = () => {
+  ws.close();
 };

@@ -1,11 +1,18 @@
 import {store} from './reducer';
-import {CLEAR_ERROR, SHOW_ERROR} from "./actions";
+import {showError, clearError} from "./actions";
+import {close} from "./ws";
 
 export const dispatch = action => {
   store.dispatch(action);
 };
 
-export const showError = error => {
-  dispatch({type: SHOW_ERROR, payload: error});
-  setTimeout(() => dispatch({type: CLEAR_ERROR}), 3000);
+export const displayError = error => {
+  console.log(error);
+  dispatch(showError(error));
+  setTimeout(() => dispatch(clearError()), 3000);
+};
+
+export const logout = () => {
+  localStorage.clear();
+  close();
 };
