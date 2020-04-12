@@ -15,5 +15,4 @@ export default class Header extends React.PureComponent {
 
     )
   }
-
 }

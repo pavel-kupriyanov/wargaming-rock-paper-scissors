@@ -1,18 +1,15 @@
 import React from 'react';
 import './App.css';
 import {connect} from "react-redux";
-import {bindActionCreators} from "redux";
 
 import {GAME_STATE} from "./app/constants";
 import Game from "./components/Game";
 import Error from "./components/Error";
 import NicknameForm from "./components/NicknameForm";
-import {getWs} from "./app/ws";
+import {getWs, wsLogin} from "./app/ws";
 import {displayError} from "./app/utils";
-import {login} from "./app/actions";
 import Waiting from "./components/Waiting";
 import Header from "./components/Header";
-
 
 class App extends React.Component {
 
@@ -42,7 +39,7 @@ class App extends React.Component {
   async connectToWs() {
     getWs()
       .then(_ => {
-        this.props.login(this.state.nickname, this.state.token);
+        wsLogin(this.state.nickname, this.state.token);
       })
       .catch(err => {
         displayError(err);
@@ -65,7 +62,7 @@ class App extends React.Component {
         currentComponent = <Waiting/>;
         break;
       default:
-        currentComponent = <h1>Unknown</h1>
+        currentComponent = <Game/>
     }
     return (
       <React.Fragment>
@@ -82,11 +79,9 @@ const mapStateToProps = state => ({
   token: state.token,
   gameState: state.gameState,
   userInfo: state.userInfo,
-  error: state.error
+  error: state.error,
+  timeout: state.timeout
 });
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators({login}, dispatch);
-};
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, null)(App);
 

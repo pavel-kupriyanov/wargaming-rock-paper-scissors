@@ -1,5 +1,15 @@
 import {dispatch, displayError} from "./utils";
-import {loginFailure, loginSuccess, closeConnection} from "./actions";
+import {
+  loginFailure,
+  loginSuccess,
+  readyCheck,
+  closeConnection,
+  gameStart,
+  readyConfirmed,
+  login,
+  readyConfirm,
+  updateMeta
+} from "./actions";
 import {WS_ACTION} from "./constants";
 
 
@@ -7,6 +17,7 @@ let ws = null;
 
 export const receive = message => {
   const {action, payload, meta} = JSON.parse(message.data);
+  console.log(action, payload, meta);
   switch (action) {
     case WS_ACTION.AUTH:
       if (payload.status) {
@@ -17,11 +28,24 @@ export const receive = message => {
         dispatch(loginFailure(payload.error))
       }
       break;
+    case WS_ACTION.GAME_START:
+      dispatch(gameStart(payload.players));
+      break;
+    case WS_ACTION.READY_CHECK:
+      if (payload.timeout) {
+        dispatch(readyCheck(payload.timeout));
+      } else {
+        dispatch(readyConfirmed())
+      }
+      break;
     default:
       break
   }
   if (payload.error) {
     displayError(payload.error)
+  }
+  if (meta) {
+    dispatch(updateMeta(meta))
   }
 };
 
@@ -49,6 +73,17 @@ export const getWs = async () => {
     };
   })
 };
+
+export const wsLogin = (nickname, token) => {
+  send(WS_ACTION.AUTH, {nickname, token});
+  dispatch(login(nickname, token))
+};
+
+export const wsReadyConfirm = () => {
+  send(WS_ACTION.READY_CHECK, {});
+  dispatch(readyConfirm());
+};
+
 
 export const send = (action, payload) => {
   console.log(action, payload);
