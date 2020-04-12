@@ -8,6 +8,10 @@ export const READY_CHECK = "READY@CHECK";
 export const READY_CONFIRM = "READY@CONFIRM";
 export const READY_SUCCESS = "READY@SUCCESS";
 
+export const PICK = "PICK@CHECK";
+export const PICK_CONFIRM = "PICK@CONFIRM";
+export const PICK_SUCCESS = "PICK@SUCCESS";
+
 export const SHOW_ERROR = "ERROR@SHOW";
 export const CLEAR_ERROR = "ERROR@CLEAR";
 
@@ -24,7 +28,7 @@ export const showError = (error) => {
 };
 
 export const updateMeta = (meta) => {
-  return {UPDATE_META, meta}
+  return {type: UPDATE_META, payload: meta}
 };
 
 export const login = (nickname, token) => {
@@ -55,6 +59,19 @@ export const readyConfirm = () => {
 export const readyConfirmed = () => {
   return {type: READY_SUCCESS, payload: {}}
 };
+
+export const pick = (timeout) => {
+  return {type: PICK, payload: timeout}
+};
+
+export const pickConfirm = (pick) => {
+  return {type: PICK_CONFIRM, payload: pick}
+};
+
+export const pickConfirmed = () => {
+  return {type: PICK_SUCCESS, payload: {}}
+};
+
 
 export const closeConnection = () => {
   return {type: CLOSE}

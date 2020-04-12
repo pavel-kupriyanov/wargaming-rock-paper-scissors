@@ -2,7 +2,8 @@ import React from "react";
 import {connect} from "react-redux";
 import {GAME_STATE} from "../app/constants";
 import AreYouReady from "./game/AreYouReady";
-import {wsReadyConfirm, close} from "../app/ws";
+import {wsReadyConfirm, close, wsPick} from "../app/ws";
+import Pick from "./game/Pick";
 
 class Game extends React.Component {
 
@@ -14,14 +15,30 @@ class Game extends React.Component {
 
     const {gameState, players, timeout} = this.props;
 
+    let currentComponent;
+    switch (gameState) {
+      case GAME_STATE.READY_CHECK:
+        currentComponent = <AreYouReady timeout={timeout} onReady={wsReadyConfirm} onTimeout={close}/>;
+        break;
+      case GAME_STATE.READY_SUCCESS:
+        currentComponent = <p>Waiting another players...</p>;
+        break;
+      case GAME_STATE.PICK:
+        currentComponent = <Pick timeout={timeout} onPick={wsPick} onTimeout={close}/>;
+        break;
+      case GAME_STATE.PICK_SUCCESS:
+        currentComponent = <p>Waiting another players...</p>;
+        break;
+      default:
+        currentComponent = <h1>Unknown</h1>
+    }
+
     return (
       <React.Fragment>
         <h1>Game</h1>
         <h3>Players:</h3>
         {players.map(player => <p key={player}>{player}</p>)}
-        {gameState === GAME_STATE.READY_CHECK &&
-        <AreYouReady timeot={timeout} onReady={wsReadyConfirm} onTimeout={close}/>}
-        {gameState === GAME_STATE.READY_SUCCESS && <p>Waiting another players...</p>}
+        {currentComponent}
       </React.Fragment>
     )
   }

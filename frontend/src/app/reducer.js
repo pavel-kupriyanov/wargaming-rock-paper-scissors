@@ -11,7 +11,7 @@ import {
   READY_CHECK,
   GAME_START,
   READY_SUCCESS,
-  READY_CONFIRM, UPDATE_META
+  READY_CONFIRM, UPDATE_META, PICK, PICK_CONFIRM, PICK_SUCCESS
 } from "./actions";
 
 const initialState = {
@@ -47,6 +47,12 @@ export default function reducer(state = initialState, action) {
       return state;
     case READY_SUCCESS:
       return {...state, gameState: GAME_STATE.READY_SUCCESS};
+    case PICK:
+      return {...state, gameState: GAME_STATE.PICK, timeout: payload};
+    case PICK_CONFIRM:
+      return state;
+    case PICK_SUCCESS:
+      return {...state, gameState: GAME_STATE.PICK_SUCCESS};
     case SHOW_ERROR:
       return {...state, error: action.payload};
     case CLEAR_ERROR:

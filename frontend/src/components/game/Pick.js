@@ -9,9 +9,9 @@ export default class Pick extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      timeout: this.props.timeout,
+      timeout: props.timeout,
     };
-    this.onReady = this.onReady.bind(this);
+    this.onPick = this.onPick.bind(this);
   }
 
   componentDidMount() {

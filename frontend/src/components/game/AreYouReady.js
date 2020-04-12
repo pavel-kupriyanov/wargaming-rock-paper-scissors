@@ -7,8 +7,9 @@ export default class AreYouReady extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      timeout: this.props.timeout,
+      timeout: props.timeout,
     };
+    console.log(this.state);
     this.onReady = this.onReady.bind(this);
   }
 

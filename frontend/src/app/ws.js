@@ -8,7 +8,10 @@ import {
   readyConfirmed,
   login,
   readyConfirm,
-  updateMeta
+  updateMeta,
+  pick,
+  pickConfirm,
+  pickConfirmed
 } from "./actions";
 import {WS_ACTION} from "./constants";
 
@@ -36,6 +39,13 @@ export const receive = message => {
         dispatch(readyCheck(payload.timeout));
       } else {
         dispatch(readyConfirmed())
+      }
+      break;
+    case WS_ACTION.PICK:
+      if (payload.timeout) {
+        dispatch(pick(payload.timeout));
+      } else {
+        dispatch(pickConfirmed())
       }
       break;
     default:
@@ -82,6 +92,11 @@ export const wsLogin = (nickname, token) => {
 export const wsReadyConfirm = () => {
   send(WS_ACTION.READY_CHECK, {});
   dispatch(readyConfirm());
+};
+
+export const wsPick = (pick) => {
+  send(WS_ACTION.PICK, {pick});
+  dispatch(pickConfirm(pick));
 };
 
 
