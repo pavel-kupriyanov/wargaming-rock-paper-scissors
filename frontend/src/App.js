@@ -1,6 +1,7 @@
 import React from 'react';
-import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import {connect} from "react-redux";
+import {Container, Row, Col} from "react-bootstrap";
 
 import {GAME_STATE, NOTIFICATION_TYPES} from "./app/constants";
 import Game from "./components/Game";
@@ -65,11 +66,11 @@ class App extends React.Component {
         currentComponent = <Game/>
     }
     return (
-      <React.Fragment>
+      <Container fluid className="no-padding">
         <Header userInfo={userInfo} onExit={close} onLogout={logout}/>
-        {currentComponent}
         {notifications && <Notifications notifications={notifications}/>}
-      </React.Fragment>
+        {currentComponent}
+      </Container>
     )
   }
 }

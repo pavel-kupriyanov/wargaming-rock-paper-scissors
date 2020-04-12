@@ -13,6 +13,7 @@ export const displayNotification = (message, type) => {
 };
 
 export const logout = () => {
-  localStorage.clear();
+  localStorage.setItem("nickname", "");
+  localStorage.setItem("token", "");
   close();
 };

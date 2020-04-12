@@ -1,4 +1,5 @@
 import React from "react";
+import {Card, Col, Row, Button, Form, InputGroup, FormGroup} from "react-bootstrap";
 
 export default class NicknameForm extends React.PureComponent {
 
@@ -19,10 +20,20 @@ export default class NicknameForm extends React.PureComponent {
 
   render() {
     return (
-      <form onSubmit={this.submitNickname}>
-        <input name="nickname" onChange={this.onNicknameChange} value={this.props.value || ""}/>
-        <button type="submit">Submit</button>
-      </form>
+      <Row>
+        <Col>
+          <Card className="mx-auto nickname-card shadow p-3">
+            <Form onSubmit={this.submitNickname}>
+              <Form.Group>
+                <Form.Label>Nickname</Form.Label>
+                <Form.Control type="text" placeholder="Nickname" onChange={this.onNicknameChange}
+                              value={this.props.value || ""}/>
+              </Form.Group>
+              <Button size="lg" type="submit" block>Connect to server</Button>
+            </Form>
+          </Card>
+        </Col>
+      </Row>
     )
   }
 }
