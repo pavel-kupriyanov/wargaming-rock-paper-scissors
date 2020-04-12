@@ -18,6 +18,7 @@ class Response:
 
 
 class Action:
+    GAME_START = 'game_start'
     READY_CHECK = 'ready_check'
     PICK = 'pick'
     GAME_RESULT = 'game_result'

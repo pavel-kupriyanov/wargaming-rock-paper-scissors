@@ -11,7 +11,7 @@ class RockPaperScissors:
         game_name = "Rock Paper Scissors"
         min_players = 2
 
-    def __init__(self, loop, connections, ready_timeout=60, pick_timeout=60, round_timeout=3):
+    def __init__(self, loop, connections, ready_timeout=60, pick_timeout=60, round_timeout=10):
         self.loop = loop
         self.ready_timeout = ready_timeout
         self.pick_timeout = pick_timeout
@@ -39,24 +39,27 @@ class RockPaperScissors:
         Game logic
         """
         logging.info(f"Created {self}.")
+        players = [{"nickname": player.user.nickname} for player in self.players]
+        await self.send_for_all(Action.GAME_START, {"players": players})
         await self.ready_check()
         winner = None
         current_round = 1
         while not winner:
             logging.info(f"Round {current_round}.")
-            picks = await self.get_picks()
+            picks = await self.get_picks(current_round)
             correct_picks = [p for p in picks if p.choice]
+            if not correct_picks:
+                await self.close_game(Response.ALL_PICKS_IS_NONE)
+                break
             winner = self.get_winner(correct_picks)
             choices = [{"nickname": pick.player.user.nickname, "choice": pick.choice} for pick in picks]
             logging.info(f"Picks: {choices}.")
             message = {"choices": choices, "winner": None, "round": current_round}
             if winner:
                 message["winner"] = winner.player.user.nickname
+            else:
+                current_round += 1
             await self.send_for_all(Action.GAME_RESULT, message)
-            if not correct_picks:
-                await self.close_game(Response.ALL_PICKS_IS_NONE)
-                break
-            current_round += 1
             await asyncio.sleep(self.round_timeout)
         else:
             winner.player.user.win += 1
@@ -89,11 +92,11 @@ class RockPaperScissors:
         """
         return await run_tasks([player.remove_if_not_ready() for player in self.players])
 
-    async def get_picks(self):
+    async def get_picks(self, current_round):
         """
         Get pick from eah player
         """
-        return await run_tasks([player.get_pick() for player in self.players])
+        return await run_tasks([player.get_pick(current_round) for player in self.players])
 
     @staticmethod
     def get_winner(picks):

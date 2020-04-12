@@ -8,10 +8,15 @@ import websockets
 from .connection import Connection
 
 
+# TODO: error codes
 class Error:
     INVALID_FORMAT = "Invalid format"
     ALREADY_CONNECTED = "User already connected now"
     NICKNAME_USED = "Nickname already used"
+
+
+class Action:
+    AUTH = "auth"
 
 
 class Server:
@@ -39,6 +44,7 @@ class Server:
         logging.info(f"Server started on {host}:{port}")
         return websockets.serve(self.handle, host, port)
 
+    # todo: logout
     async def handle(self, ws, _):
         """
         Handle websocket connection
@@ -80,25 +86,25 @@ class Server:
         message = await connection.recv()
         action, payload = message.get("action"), message.get("payload")
 
-        if action != "auth" or not isinstance(payload, dict):
-            await connection.send("auth", {"status": False, "error": Error.INVALID_FORMAT})
+        if action != Action.AUTH or not isinstance(payload, dict):
+            await connection.send(Action.AUTH, {"status": False, "error": Error.INVALID_FORMAT})
             return False
 
         token, nickname = payload.get("token"), payload.get("nickname")
         if nickname in {user.nickname for user in self.users.values() if user.connected_now}:
-            await connection.send("auth", {"status": False, "error": Error.NICKNAME_USED})
+            await connection.send(Action.AUTH, {"status": False, "error": Error.NICKNAME_USED})
             return False
 
         user = self.users.get(token) or User(nickname)
         if user.connected_now:
-            await connection.send("auth", {"status": False, "error": Error.ALREADY_CONNECTED})
+            await connection.send(Action.AUTH, {"status": False, "error": Error.ALREADY_CONNECTED})
             return False
 
         user.nickname = nickname
         self.users[user.token] = user
         user.connected_now = True
         connection.user = user
-        await connection.send("auth", {"status": True})
+        await connection.send(Action.AUTH, {"status": True})
         return True
 
     def prepare_session(self, connections):

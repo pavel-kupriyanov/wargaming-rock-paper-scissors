@@ -68,12 +68,12 @@ class Player:
         await self.close()
         return False
 
-    async def get_pick(self):
+    async def get_pick(self, current_round):
         """
         Get pick from player
         """
         timeout = self.session.pick_timeout
-        res = await self.send_and_recv(Action.PICK, {"timeout": timeout}, timeout)
+        res = await self.send_and_recv(Action.PICK, {"timeout": timeout, "current_round": current_round}, timeout)
 
         if res is None:
             logging.info(f"{self} is not pick anything.")

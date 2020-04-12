@@ -122,7 +122,7 @@ class TestGame(aiounittest.AsyncTestCase):
         write(winner, {"action": "pick", "payload": {"pick": Choice.PAPER}})
 
         await asyncio.sleep(0.1)
-        for _ in range(4):
+        for _ in range(5):
             read(winner)
         message = read(winner)
         self.assertEqual(message.get("payload").get("winner"), "Vladimir Harkonnen")
