@@ -26,7 +26,7 @@ const initialState = {
   token: null,
   timeout: null,
   userInfo: null,
-  current_round: null,
+  current_round: 1,
   winner: null,
   players: [],
   notifications: [],
@@ -61,7 +61,7 @@ export default function reducer(state = initialState, action) {
     case PICK_SUCCESS:
       return {...state, gameState: GAME_STATE.PICK_SUCCESS};
     case GAME_RESULT:
-      return {...state, players: payload};
+      return {...state, gameState: GAME_STATE.RESULT, players: payload};
     case GAME_WINNER:
       return {...state, winner: payload};
     case ADD_NOTIFICATION:

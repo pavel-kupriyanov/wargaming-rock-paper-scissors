@@ -22,7 +22,7 @@ export default class NicknameForm extends React.PureComponent {
     return (
       <Row>
         <Col>
-          <Card className="mx-auto nickname-card shadow p-3">
+          <Card className="mx-auto app-card shadow p-3">
             <Form onSubmit={this.submitNickname}>
               <Form.Group>
                 <Form.Label>Nickname</Form.Label>

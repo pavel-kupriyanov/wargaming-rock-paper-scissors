@@ -1,4 +1,5 @@
 import React from "react";
+import {Button, Modal} from "react-bootstrap";
 
 export default class AreYouReady extends React.Component {
 
@@ -36,12 +37,13 @@ export default class AreYouReady extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
-        <h1>Are you ready?</h1>
-        <h1>{this.state.timeout}</h1>
-        <button onClick={this.onReady}>Ready!</button>
-      </React.Fragment>
+      <Modal show={true}>
+        <Modal.Header>
+          <Modal.Title>Are you ready?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>You will be disconnected after {this.state.timeout} seconds</Modal.Body>
+        <Modal.Footer><Button size="lg" block onClick={this.onReady}>Ready!</Button></Modal.Footer>
+      </Modal>
     )
   }
-
 }

@@ -8,7 +8,7 @@ export default class Waiting extends React.PureComponent {
     return (
       <Row>
         <Col>
-          <Card className="mx-auto nickname-card shadow p-3 d-flex flex-column justify-content-center">
+          <Card className="mx-auto app-card shadow p-3 d-flex flex-column justify-content-center">
             <h1 className="text-center">Finding opponents...</h1>
             <div className="d-flex justify-content-center w-100">
               <Spinner animation="border" />
