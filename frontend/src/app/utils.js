@@ -1,15 +1,15 @@
 import {store} from './reducer';
-import {showError, clearError} from "./actions";
+import {addNotification, removeNotification} from "./actions";
 import {close} from "./ws";
 
 export const dispatch = action => {
   store.dispatch(action);
 };
 
-export const displayError = error => {
-  console.log(error);
-  dispatch(showError(error));
-  setTimeout(() => dispatch(clearError()), 3000);
+export const displayNotification = (message, type) => {
+  console.log(`${type}: ${message}`);
+  dispatch(addNotification(message, type));
+  setTimeout(() => dispatch(removeNotification(message, type)), 5000);
 };
 
 export const logout = () => {

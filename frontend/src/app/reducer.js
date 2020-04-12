@@ -5,13 +5,11 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
-  SHOW_ERROR,
-  CLEAR_ERROR,
   CLOSE,
   READY_CHECK,
   GAME_START,
   READY_SUCCESS,
-  READY_CONFIRM, UPDATE_META, PICK, PICK_CONFIRM, PICK_SUCCESS
+  READY_CONFIRM, UPDATE_META, PICK, PICK_CONFIRM, PICK_SUCCESS, ADD_NOTIFICATION, REMOVE_NOTIFICATION
 } from "./actions";
 
 const initialState = {
@@ -19,10 +17,9 @@ const initialState = {
   nickname: null,
   token: null,
   timeout: null,
-  loading: false,
-  error: null,
   userInfo: null,
   players: [],
+  notifications: [],
   meta: {}
 };
 
@@ -33,12 +30,12 @@ export default function reducer(state = initialState, action) {
   const payload = action.payload;
   switch (action.type) {
     case LOGIN_REQUEST:
-      return {...state, loading: true, nickname: payload.nickname, token: payload.token};
+      return {...state, nickname: payload.nickname, token: payload.token};
     case LOGIN_SUCCESS:
-      return {...state, loading: false, gameState: GAME_STATE.WAITING, userInfo: payload};
+      return {...state, gameState: GAME_STATE.WAITING, userInfo: payload};
     case LOGIN_FAILURE:
-      if (action.payload === RESPONSE_ERROR.NICKNAME_USED) state.nickname = null;
-      return {...state, loading: false};
+      const nickname = action.payload === RESPONSE_ERROR.NICKNAME_USED ? null : state.nickname;
+      return {...state, nickname: nickname};
     case GAME_START:
       return {...state, gameState: GAME_STATE.GAME_START, players: payload};
     case READY_CHECK:
@@ -53,12 +50,12 @@ export default function reducer(state = initialState, action) {
       return state;
     case PICK_SUCCESS:
       return {...state, gameState: GAME_STATE.PICK_SUCCESS};
-    case SHOW_ERROR:
-      return {...state, error: action.payload};
-    case CLEAR_ERROR:
-      return {...state, error: null};
+    case ADD_NOTIFICATION:
+      return {...state, notifications: state.notifications.concat(payload)};
+    case REMOVE_NOTIFICATION:
+      return {...state, notifications: state.notifications.filter(x => x.message !== payload.message)};
     case CLOSE:
-      return initialState;
+      return {...initialState, notifications: state.notifications};
     case UPDATE_META:
       return {...state, meta: payload};
     default:

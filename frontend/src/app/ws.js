@@ -1,4 +1,4 @@
-import {dispatch, displayError} from "./utils";
+import {dispatch, displayNotification} from "./utils";
 import {
   loginFailure,
   loginSuccess,
@@ -13,7 +13,7 @@ import {
   pickConfirm,
   pickConfirmed
 } from "./actions";
-import {WS_ACTION} from "./constants";
+import {NOTIFICATION_TYPES, WS_ACTION} from "./constants";
 
 
 let ws = null;
@@ -48,11 +48,15 @@ export const receive = message => {
         dispatch(pickConfirmed())
       }
       break;
+    case WS_ACTION.DISCONNECT:
+      const message = payload.player ? `${payload.player} disconnected.` : `Session closed: ${payload.reason}`;
+      displayNotification(message, NOTIFICATION_TYPES.MESSAGE);
+      break;
     default:
       break
   }
   if (payload.error) {
-    displayError(payload.error)
+    displayNotification(payload.error, NOTIFICATION_TYPES.ERROR)
   }
   if (meta) {
     dispatch(updateMeta(meta))

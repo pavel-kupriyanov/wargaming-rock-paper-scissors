@@ -30,3 +30,8 @@ export const CHOICES = {
   PAPER: "Paper",
   SCISSORS: "Scissors",
 };
+
+export const NOTIFICATION_TYPES = {
+  ERROR: "Error",
+  MESSAGE: "Message"
+};

@@ -12,19 +12,18 @@ export const PICK = "PICK@CHECK";
 export const PICK_CONFIRM = "PICK@CONFIRM";
 export const PICK_SUCCESS = "PICK@SUCCESS";
 
-export const SHOW_ERROR = "ERROR@SHOW";
-export const CLEAR_ERROR = "ERROR@CLEAR";
+export const ADD_NOTIFICATION = "NOTIFICATION@ADD";
+export const REMOVE_NOTIFICATION = "NOTIFICATION@REMOVE";
 
 export const CLOSE = "CLOSE";
 export const UPDATE_META = "META";
 
-
-export const clearError = () => {
-  return {type: CLEAR_ERROR};
+export const addNotification = (message, type) => {
+  return {type: ADD_NOTIFICATION, payload: {message, type}}
 };
 
-export const showError = (error) => {
-  return {type: SHOW_ERROR, payload: error}
+export const removeNotification = (message, type) => {
+  return {type: REMOVE_NOTIFICATION, payload: {message, type}}
 };
 
 export const updateMeta = (meta) => {

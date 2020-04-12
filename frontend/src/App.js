@@ -2,14 +2,14 @@ import React from 'react';
 import './App.css';
 import {connect} from "react-redux";
 
-import {GAME_STATE} from "./app/constants";
+import {GAME_STATE, NOTIFICATION_TYPES} from "./app/constants";
 import Game from "./components/Game";
-import Error from "./components/Error";
 import NicknameForm from "./components/NicknameForm";
-import {getWs, wsLogin} from "./app/ws";
-import {displayError} from "./app/utils";
+import {getWs, wsLogin, close} from "./app/ws";
+import {displayNotification, logout} from "./app/utils";
 import Waiting from "./components/Waiting";
 import Header from "./components/Header";
+import Notifications from "./components/Notifications";
 
 class App extends React.Component {
 
@@ -42,7 +42,7 @@ class App extends React.Component {
         wsLogin(this.state.nickname, this.state.token);
       })
       .catch(err => {
-        displayError(err);
+        displayNotification(err, NOTIFICATION_TYPES.ERROR);
       });
   }
 
@@ -51,7 +51,7 @@ class App extends React.Component {
   }
 
   render() {
-    const {gameState, error, userInfo} = this.props;
+    const {gameState, userInfo, notifications} = this.props;
     let currentComponent;
     switch (gameState) {
       case GAME_STATE.LOGIN:
@@ -66,9 +66,9 @@ class App extends React.Component {
     }
     return (
       <React.Fragment>
-        <Header userInfo={userInfo}/>
+        <Header userInfo={userInfo} onExit={close} onLogout={logout}/>
         {currentComponent}
-        {error && <Error error={error}/>}
+        {notifications && <Notifications notifications={notifications}/>}
       </React.Fragment>
     )
   }
@@ -80,7 +80,8 @@ const mapStateToProps = state => ({
   gameState: state.gameState,
   userInfo: state.userInfo,
   error: state.error,
-  timeout: state.timeout
+  timeout: state.timeout,
+  notifications: state.notifications
 });
 
 export default connect(mapStateToProps, null)(App);
