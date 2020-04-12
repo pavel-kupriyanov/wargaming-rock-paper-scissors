@@ -13,7 +13,7 @@ class Game extends React.Component {
 
   render() {
 
-    const {gameState, players, timeout} = this.props;
+    const {gameState, players, timeout, round, winner} = this.props;
 
     let currentComponent;
     switch (gameState) {
@@ -35,9 +35,12 @@ class Game extends React.Component {
 
     return (
       <React.Fragment>
-        <h1>Game</h1>
+        <h1>Round: {round}</h1>
         <h3>Players:</h3>
-        {players.map(player => <p key={player}>{player}</p>)}
+        {players.map(player =>
+          <p key={player.nickname} style={{color: winner === player.nickname ? "green" : ""}}>
+            {player.nickname} {player.choice}
+          </p>)}
         {currentComponent}
       </React.Fragment>
     )
@@ -50,6 +53,8 @@ const mapStateToProps = state => ({
   players: state.players,
   timeout: state.timeout,
   userInfo: state.userInfo,
+  round: state.current_round,
+  winner: state.winner
 });
 
 export default connect(mapStateToProps, null)(Game);

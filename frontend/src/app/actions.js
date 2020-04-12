@@ -12,6 +12,9 @@ export const PICK = "PICK@CHECK";
 export const PICK_CONFIRM = "PICK@CONFIRM";
 export const PICK_SUCCESS = "PICK@SUCCESS";
 
+export const GAME_RESULT = "GAME@RESULT";
+export const GAME_WINNER = "GAME@WINNER";
+
 export const ADD_NOTIFICATION = "NOTIFICATION@ADD";
 export const REMOVE_NOTIFICATION = "NOTIFICATION@REMOVE";
 
@@ -59,8 +62,8 @@ export const readyConfirmed = () => {
   return {type: READY_SUCCESS, payload: {}}
 };
 
-export const pick = (timeout) => {
-  return {type: PICK, payload: timeout}
+export const pick = (timeout, current_round) => {
+  return {type: PICK, payload: {timeout, current_round}}
 };
 
 export const pickConfirm = (pick) => {
@@ -71,6 +74,13 @@ export const pickConfirmed = () => {
   return {type: PICK_SUCCESS, payload: {}}
 };
 
+export const gameResult = (players) => {
+  return {type: GAME_RESULT, payload: players}
+};
+
+export const gameWinner = (winner) => {
+  return {type: GAME_WINNER, payload: winner}
+};
 
 export const closeConnection = () => {
   return {type: CLOSE}

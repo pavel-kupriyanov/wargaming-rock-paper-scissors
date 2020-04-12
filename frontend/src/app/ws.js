@@ -11,7 +11,7 @@ import {
   updateMeta,
   pick,
   pickConfirm,
-  pickConfirmed
+  pickConfirmed, gameResult, gameWinner
 } from "./actions";
 import {NOTIFICATION_TYPES, WS_ACTION} from "./constants";
 
@@ -43,10 +43,17 @@ export const receive = message => {
       break;
     case WS_ACTION.PICK:
       if (payload.timeout) {
-        dispatch(pick(payload.timeout));
+        dispatch(pick(payload.timeout, payload.current_round));
       } else {
         dispatch(pickConfirmed())
       }
+      break;
+    case WS_ACTION.GAME_RESULT:
+      dispatch(gameResult(payload.choices));
+      if (payload.winner){
+        dispatch(gameWinner(payload.winner));
+      }
+
       break;
     case WS_ACTION.DISCONNECT:
       const message = payload.player ? `${payload.player} disconnected.` : `Session closed: ${payload.reason}`;
