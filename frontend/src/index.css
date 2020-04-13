@@ -5,6 +5,11 @@
 .nav-item {
     margin-left: 15px;
 }
+@media screen and (max-width: 530px){
+    .nav-item {
+    margin-left: 0;
+}
+}
 
 .container-fluid {
     height: 100vh;

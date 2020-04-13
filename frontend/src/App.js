@@ -2,7 +2,7 @@ import React from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {connect} from "react-redux";
-import {Container, Row, Col, Navbar, Nav, Button, Alert} from "react-bootstrap";
+import {Container, Navbar, Nav, Button, Alert} from "react-bootstrap";
 
 import Game from "./components/Game";
 import NicknameForm from "./components/NicknameForm";
@@ -67,20 +67,20 @@ class App extends React.Component {
     }
     return (
       <Container fluid className="no-padding">
-        <Row>
-          <Col>
-            <Navbar bg="primary" expand="lg" variant="dark" className="shadow p-3">
-              <Navbar.Brand className="mr-auto"><h3>Rock-Paper-Scissors</h3></Navbar.Brand>
-              {userInfo && <Nav>
-                <Nav.Item><h3 className="white">{userInfo.nickname}</h3></Nav.Item>
-                <Nav.Item><h3 className="white">Win: {userInfo.win}</h3></Nav.Item>
-                <Nav.Item><h3 className="white">Games: {userInfo.games}</h3></Nav.Item>
-                <Nav.Item><Button onClick={logout} variant="outline-light">Logout</Button></Nav.Item>
-                <Nav.Item><Button onClick={close} variant="outline-light">Exit</Button></Nav.Item>
-              </Nav>}
-            </Navbar>
-          </Col>
-        </Row>
+        <Navbar bg="primary" expand="lg" variant="dark" className="shadow p-3">
+          <Navbar.Brand className="mr-auto"><h3>Rock-Paper-Scissors</h3></Navbar.Brand>
+          {userInfo && <Nav>
+            <Nav.Item><h3 className="white">{userInfo.nickname}</h3></Nav.Item>
+            <div className="d-flex">
+              <Nav.Item><h3 className="white">Win: {userInfo.win}</h3></Nav.Item>
+              <Nav.Item><h3 className="white">Games: {userInfo.games}</h3></Nav.Item>
+            </div>
+            <div className="d-flex">
+              <Nav.Item className="pr-2"><Button onClick={logout} variant="outline-light">Logout</Button></Nav.Item>
+              <Nav.Item><Button onClick={close} variant="outline-light">Exit</Button></Nav.Item>
+            </div>
+          </Nav>}
+        </Navbar>
         {notifications.map((notification, i) => {
           return <Alert key={i} variant={notification.type === NOTIFICATION_TYPES.ERROR ? "warning" : "info"}>
             {notification.message}
