@@ -90,7 +90,3 @@ it("renders with game state PICK_SUCCESS", () => {
   });
   expect(document.body.textContent).toEqual(expect.stringContaining("Waiting"));
 });
-
-
-
-

@@ -43,7 +43,7 @@ class App extends React.Component {
         wsLogin(this.state.nickname, this.state.token);
       })
       .catch(err => {
-        displayNotification(err, NOTIFICATION_TYPES.ERROR);
+        displayNotification("Connection error", NOTIFICATION_TYPES.ERROR);
       });
   }
 

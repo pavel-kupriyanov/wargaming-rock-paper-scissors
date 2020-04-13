@@ -1,0 +1,27 @@
+version: "3.1"
+services:
+  rock-paper-scissors-backend:
+    container_name: rps-backend
+    build:
+      dockerfile: Dockerfile
+      context: ./backend/
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8888
+      - PLAYERS=3
+      - TIMEOUT=60
+    ports:
+      - 8888:8888
+    restart: on-failure
+
+  rock-paper-scissors-frontend:
+    container_name: rps-frontend
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend/
+    environment:
+      - REACT_APP_SERVER_URL=ws://localhost:8888
+    ports:
+      - 3000:3000
+    restart: on-failure
+
