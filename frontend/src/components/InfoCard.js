@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import {Card, Spinner} from "react-bootstrap";
-import PropTypes from "prop-types";
 
 export default class InfoCard extends React.PureComponent {
 

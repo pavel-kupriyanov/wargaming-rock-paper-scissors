@@ -47,8 +47,9 @@ export default class TimeoutModal extends React.PureComponent {
         </Modal.Header>
         <Modal.Body>{messageTemplate.replace("{timeout}", this.state.timeout.toString())}</Modal.Body>
         <Modal.Footer>
-          {buttonsConfig.map(conf =>
-            <Button size="lg" variant={conf.variant} block onClick={() => this.onClick(conf.callback)}>
+          {buttonsConfig.map((conf, i) =>
+            <Button size="lg" variant={conf.variant} block onClick={() => this.onClick(conf.callback)}
+                    key={`button-${i}`}>
               {conf.text}
             </Button>)
           }
@@ -61,7 +62,7 @@ export default class TimeoutModal extends React.PureComponent {
 TimeoutModal.propTypes = {
   header: PropTypes.string,
   messageTemplate: PropTypes.string,
-  buttonsConfig: PropTypes.object,
+  buttonsConfig: PropTypes.array,
   timeout: PropTypes.number
 };
 
