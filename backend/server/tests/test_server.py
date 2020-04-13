@@ -72,27 +72,27 @@ class TestServer(aiounittest.AsyncTestCase):
 
     async def test_prepare_session_ok(self):
         conn1, conn2 = Connection(MockWebsocket(), self.server.loop), Connection(MockWebsocket(), self.server.loop)
-        self.server.connections = [conn1, conn2]
+        self.server.waiting_connections = [conn1, conn2]
         session = self.server.prepare_session([conn1])
         self.assertSequenceEqual([conn1], session.connections)
-        self.assertSequenceEqual([conn2], self.server.connections)
+        self.assertSequenceEqual([conn2], self.server.waiting_connections)
 
     async def test_keep_connection_ok(self):
         conn1, conn2 = Connection(MockWebsocket(), self.server.loop), Connection(MockWebsocket(), self.server.loop)
         conn1.user = User("Paul Atreides")
-        self.server.connections = [conn1, conn2]
+        self.server.waiting_connections = [conn1, conn2]
         task = asyncio.create_task(self.server.keep_connection(conn1))
         await asyncio.sleep(0.1)
-        self.assertSequenceEqual([conn1, conn2], self.server.connections)
+        self.assertSequenceEqual([conn1, conn2], self.server.waiting_connections)
         await conn1.close()
         await task
-        self.assertSequenceEqual([conn2], self.server.connections)
+        self.assertSequenceEqual([conn2], self.server.waiting_connections)
 
     async def test_wait_handle_ok(self):
         asyncio.create_task(self.server.handle(self.ws, ""))
         write(self.ws, {"action": ACTION_AUTH, "payload": {"nickname": "Paul Atreides"}})
         await asyncio.sleep(0.1)
-        self.assertIs(self.ws, self.server.connections[0].ws)
+        self.assertIs(self.ws, self.server.waiting_connections[0].ws)
 
     async def test_create_session_handle_ok(self):
         self.server.players_number = 2
@@ -105,7 +105,7 @@ class TestServer(aiounittest.AsyncTestCase):
         write(ws2, {"action": ACTION_AUTH, "payload": {"nickname": "Vladimir Harkonnen"}})
         await asyncio.sleep(0.1)
         res1, res2 = read(ws1), read(ws2)
-        self.assertSequenceEqual([], self.server.connections)
+        self.assertSequenceEqual([], self.server.waiting_connections)
         self.assertEqual("Paul Atreides", res1.get("meta").get("user").get("nickname"))
         self.assertEqual("Vladimir Harkonnen", res2.get("meta").get("user").get("nickname"))
 
@@ -128,7 +128,7 @@ class TestServer(aiounittest.AsyncTestCase):
             if res["action"] == "game":
                 results.append(res)
         # two players in queue (42 / 8 = 5 (2))
-        self.assertEqual(2, len(self.server.connections))
+        self.assertEqual(2, len(self.server.waiting_connections))
         # all players with session have a response from MockSession
         self.assertEqual(40, len(results))
 
@@ -137,7 +137,7 @@ class TestServer(aiounittest.AsyncTestCase):
         asyncio.create_task(self.server.handle(self.ws, ""))
         write(self.ws, {"action": "infiltration", "payload": {"nickname": "Vladimir Harkonnen"}})
         await asyncio.sleep(0.1)
-        self.assertSequenceEqual([], self.server.connections)
+        self.assertSequenceEqual([], self.server.waiting_connections)
 
     async def test_disconnect_handle_ok(self):
         ws1, ws2 = MockWebsocket(), MockWebsocket()
@@ -148,7 +148,7 @@ class TestServer(aiounittest.AsyncTestCase):
         asyncio.create_task(self.server.handle(ws2, ""))
         write(ws2, {"action": ACTION_AUTH, "payload": {"nickname": "2"}})
         await asyncio.sleep(0.1)
-        self.assertIs(ws2, self.server.connections[0].ws)
+        self.assertIs(ws2, self.server.waiting_connections[0].ws)
 
 
 class TestUser(aiounittest.AsyncTestCase):

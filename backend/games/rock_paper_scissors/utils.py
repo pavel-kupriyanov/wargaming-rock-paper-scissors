@@ -35,6 +35,7 @@ OPPONENTS = {
 async def run_tasks(tasks):
     """
     Run tasks and await all
+    :return: Task that live until task works.
     """
     tasks = [asyncio.create_task(task) for task in tasks]
     return await asyncio.gather(*tasks)

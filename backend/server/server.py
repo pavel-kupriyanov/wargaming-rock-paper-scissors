@@ -24,27 +24,33 @@ class Server:
         self.players_number = players
         self.session_class = session_class
         self.timeout = timeout
-        self.connections = []
+        self.waiting_connections = []
         self.users = dict()
         self.lock = asyncio.Lock()
 
     @property
     def meta(self):
         """
-        Server info
+        Server meta info.
+        :return: server meta info
         """
         return {"players": self.players_number, "game": self.session_class.Meta.game_name}
 
     def serve(self, host, port):
         """
-        Run web server
+        Run web server.
+        :param host - server host
+        :param port - server port
+        :return websockets lib server
         """
         logging.info(f"Server started on {host}:{port}")
         return websockets.serve(self.handle, host, port)
 
     async def handle(self, ws, _):
         """
-        Handle websocket connection
+        Connection handler. Auth user and place it to queue or create session if have enough users.
+        :param ws websocket client
+        :return: None
         """
         logging.info(f"Received connection from {ws.remote_address}.")
         connection = Connection(ws, self.loop, meta=self.meta)
@@ -56,9 +62,9 @@ class Server:
         session = None
 
         async with self.lock:
-            self.connections.append(connection)
-            if len(self.connections) == self.players_number:
-                session = self.prepare_session(self.connections[:self.players_number])
+            self.waiting_connections.append(connection)
+            if len(self.waiting_connections) == self.players_number:
+                session = self.prepare_session(self.waiting_connections[:self.players_number])
 
         if session:
             await session.play()
@@ -68,7 +74,9 @@ class Server:
 
     async def auth(self, connection):
         """
-        Try to auth user until timeout
+        Timeout wrapper for _auth method.
+        :param connection - server.Connection
+        :return: bool - auth status
         """
         try:
             return await asyncio.wait_for(self._auth(connection), timeout=self.timeout)
@@ -78,7 +86,9 @@ class Server:
 
     async def _auth(self, connection):
         """
-        Auth logic
+        Auth message validating - check that nickname correct and user don't login from another connection.
+        :param connection - server.Connection
+        :return: bool - auth status
         """
         message = await connection.recv()
         action, payload = message.get("action"), message.get("payload")
@@ -106,19 +116,23 @@ class Server:
 
     def prepare_session(self, connections):
         """
-        Remove connections from queue and pass them to game session
+        Remove connections from queue and pass them to game session.
+        :param connections - list of connection to pass into session
+        :return game session class
         """
         for conn in connections:
-            self.connections.remove(conn)
+            self.waiting_connections.remove(conn)
         return self.session_class(self.loop, connections)
 
     async def keep_connection(self, connection):
         """
-        Await until connection closed
+        Await until connection closed and then correct remove from waiting_connections
+        :param connection connection to keeping
+        :return: None
         """
         await connection.keep()
-        if connection in self.connections:
-            self.connections.remove(connection)
+        if connection in self.waiting_connections:
+            self.waiting_connections.remove(connection)
         logging.info(f"Closed connection {connection.ws.remote_address}.")
 
 
@@ -133,6 +147,7 @@ class User:
 
     def to_dict(self):
         """
-        User info to dict
+        User info to dict.
+        :return: dict of user info
         """
         return {"token": self.token, "nickname": self.nickname, "win": self.win, "games": self.games}

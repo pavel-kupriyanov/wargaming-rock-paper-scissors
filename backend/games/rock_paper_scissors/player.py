@@ -19,7 +19,8 @@ class Player:
 
     async def keep(self):
         """
-        Keep and correct close player connection
+        Keep and correct close player connection.
+        :return: None
         """
         await self.connection.keep()
         logging.info(f"{self} disconnected from {self.session}.")
@@ -27,7 +28,10 @@ class Player:
 
     async def send(self, action, payload):
         """
-        Send message to player
+        Send message to player.
+        :param action: type of message
+        :param payload: data of message
+        :return: None
         """
         try:
             await self.connection.send(action, payload)
@@ -37,7 +41,9 @@ class Player:
 
     async def recv(self, timeout=None):
         """
-        Read from connection or close by timeout
+        Read message from connection.
+        :param timeout: number of second to close by timeout.
+        :return: message or None
         """
         try:
             return await asyncio.wait_for(self.connection.recv(), timeout=timeout)
@@ -51,13 +57,18 @@ class Player:
     async def send_and_recv(self, action, payload, timeout=None):
         """
         Shortcut for send and recv
+        :param action: type of message
+        :param payload: data of message
+        :param timeout: number of second to close by timeout.
+        :return: message or None
         """
         await self.send(action, payload)
         return await self.recv(timeout)
 
     async def remove_if_not_ready(self):
         """
-        Confirm what player is ready or close connection
+        Confirm what player is ready or close connection.
+        :return: bool - ready player or not
         """
         timeout = self.session.ready_timeout
         res = await self.send_and_recv(Action.READY_CHECK, {"timeout": timeout}, timeout)
@@ -71,6 +82,8 @@ class Player:
     async def get_pick(self, current_round):
         """
         Get pick from player
+        :param current_round: number of current game round
+        :return: Pick of user
         """
         timeout = self.session.pick_timeout
         res = await self.send_and_recv(Action.PICK, {"timeout": timeout, "current_round": current_round}, timeout)
@@ -89,5 +102,9 @@ class Player:
             return Pick(self, None)
 
     async def close(self):
+        """
+        Call session disconnect method and close connection
+        :return: None
+        """
         await self.session.disconnect(self)
         await self.connection.close()

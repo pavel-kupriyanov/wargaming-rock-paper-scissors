@@ -24,7 +24,8 @@ class RockPaperScissors:
 
     async def play(self):
         """
-        Entry point of game session
+        Entry point of game. Game will works until all players disconnect.
+        :return: None
         """
         keep = self.keep_players()
         self.task = asyncio.create_task(self._play())
@@ -36,7 +37,8 @@ class RockPaperScissors:
 
     async def _play(self):
         """
-        Game logic
+        Game cycle. Players confirm ready status and choose you picks until one wins.
+        :return: None
         """
         logging.info(f"Created {self}.")
         players = [{"nickname": player.user.nickname} for player in self.players]
@@ -70,39 +72,49 @@ class RockPaperScissors:
 
     async def _close(self):
         """
-        Close all player connections
+        Call method close() for each user to close all connections.
+        :return: Task that await all players close() method.
         """
         await run_tasks([player.close() for player in self.players])
 
     async def keep_players(self):
         """
-        Task will run until all players disconnected
+        Create task that will run until all players disconnected.
+        :return: Task that live until players connected.
         """
         return await run_tasks([player.keep() for player in self.players])
 
     async def send_for_all(self, action, payload):
         """
-        Send message for all players
+        Send message to all players.
+        :param action: Type of message.
+        :param payload: Data of message.
+        :return: Task that live until all messages sends.
         """
         return await run_tasks([player.send(action, payload) for player in self.players])
 
     async def ready_check(self):
         """
-        Wait ready confirm from each player
+        Run remove_if_not_ready method fo each player.
+        :return: Task that live until all players send "ready" or disconnect.
         """
         return await run_tasks([player.remove_if_not_ready() for player in self.players])
 
     async def get_picks(self, current_round):
         """
-        Get pick from eah player
+        Waiting picks for each player.
+        :param current_round: Number of current game round
+        :return: Task that live until all players sends your picks.
         """
         return await run_tasks([player.get_pick(current_round) for player in self.players])
 
     @staticmethod
     def get_winner(picks):
         """
-        Get winner from picks
+        Chose winner from picks
         Example: ROCK win only if all another choices is SCISSORS
+        :param picks: List of picks from users
+        :return: winner pick or None if draw
         """
         for pick in picks:
             another_picks = picks[:]
@@ -113,7 +125,10 @@ class RockPaperScissors:
 
     async def disconnect(self, player):
         """
-        Actions after payer disconnected
+        Actions after payer disconnected - remove player from self.players, send message for other players,
+        close game if players count not enough.
+        :param player: Player that will be removed.
+        :return: None.
         """
         if player in self.players:
             self.players.remove(player)
@@ -123,7 +138,9 @@ class RockPaperScissors:
 
     async def close_game(self, reason):
         """
-        Close session
+        Close game - send message for players, cancel main task to break play() method.
+        :param reason: String for end user.
+        :return: None
         """
         logging.info(f"{self} closed. Reason: '{reason}'.")
         await self.send_for_all(Action.DISCONNECT, {"reason": reason})

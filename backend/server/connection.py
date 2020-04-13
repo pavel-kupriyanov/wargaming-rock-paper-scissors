@@ -2,6 +2,8 @@ import asyncio
 import logging
 import json
 
+from concurrent.futures import CancelledError
+
 
 class Connection:
 
@@ -19,6 +21,7 @@ class Connection:
     def meta(self):
         """
         Server meta info
+        :return: dict of server metadata
         """
         meta = self._meta
         if self.user:
@@ -27,7 +30,8 @@ class Connection:
 
     async def recv(self):
         """
-        Read from socket
+        Read from socket and parse to dict
+        :return: dict of user message
         """
         raw_message = await self.ws.recv()
         return parse_message(raw_message)
@@ -35,13 +39,17 @@ class Connection:
     async def send(self, action, payload):
         """
         Write to socket
+        :param action: type of message
+        :param payload: data of message
+        :return: None
         """
         message = {"action": action, "payload": payload, "meta": self.meta}
         await self.ws.send(json.dumps(message))
 
     async def keep(self):
         """
-        Run until socket closed
+        Keep connection until client close it.
+        :return: Task that live until user close connection
         """
         if not self.task:
             self.task = asyncio.create_task(self._keep())
@@ -50,19 +58,21 @@ class Connection:
 
     async def _keep(self):
         """
-        Await until exception
+        Endless task that run while True until receive CancelledError (from outside)
+        :return: None
         """
         while True:
             try:
                 await asyncio.sleep(10)
                 logging.debug(f"Keep connection with {self.ws.remote_address}")
-            except Exception as e:
+            except CancelledError as e:
                 logging.debug(f"Keeping error: {str(e)}")
                 break
 
     async def close(self):
         """
-        Correct close socket
+        Cancel main connection task to connection correct closing.
+        :return: None
         """
         if self.task:
             self.task.cancel()
@@ -72,7 +82,9 @@ class Connection:
 
 def parse_message(message: str):
     """
-    Raw string to message
+    Parse json string to dict.
+    :param message - raw string
+    :return: dict or raise ConnectionError
     """
     try:
         res = json.loads(message)
