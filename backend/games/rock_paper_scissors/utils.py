@@ -12,9 +12,9 @@ class Choice:
 
 
 class Response:
-    NOT_ENOUGH_PLAYERS = "Not enough players"
-    ALL_PICKS_IS_NONE = "All picks is null"
-    COMPLETED = "Completed"
+    NOT_ENOUGH_PLAYERS = {"code": 424, "message": "Not enough players"}
+    ALL_PICKS_IS_NONE = {"code": 400, "message": "All picks is null"}
+    COMPLETED = {"code": 200, "message": "Completed"}
 
 
 class Action:

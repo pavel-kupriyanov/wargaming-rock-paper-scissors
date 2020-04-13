@@ -53,7 +53,7 @@ class TestGame(aiounittest.AsyncTestCase):
         values = (Choice.ROCK, Choice.PAPER, "Lizard")
         for ws, value in zip(ws_list, values):
             write(ws, {"action": "pick", "payload": {"pick": value}})
-        choices = [pick.choice for pick in await self.game.get_picks()]
+        choices = [pick.choice for pick in await self.game.get_picks(1)]
         self.assertEqual([Choice.ROCK, Choice.PAPER, None], choices)
 
     def test_get_winner_ok(self):

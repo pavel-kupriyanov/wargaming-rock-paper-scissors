@@ -83,19 +83,19 @@ class PlayerTest(aiounittest.AsyncTestCase):
         self.assertFalse(res)
 
     async def test_get_pick_none(self):
-        pick = await self.player.get_pick()
+        pick = await self.player.get_pick(1)
         self.assertIsInstance(pick, Pick)
         self.assertEqual(pick.choice, None)
 
     async def test_get_pick_invalid(self):
         write(self.ws, {"action": "pick", "payload": {"pick": "Lizard"}})
-        pick = await self.player.get_pick()
+        pick = await self.player.get_pick(1)
         self.assertIsInstance(pick, Pick)
         self.assertEqual(pick.choice, None)
 
     async def test_get_pick_ok(self):
         write(self.ws, {"action": "pick", "payload": {"pick": Choice.ROCK}})
-        pick = await self.player.get_pick()
+        pick = await self.player.get_pick(1)
         self.assertIsInstance(pick, Pick)
         self.assertEqual(pick.choice, Choice.ROCK)
 

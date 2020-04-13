@@ -3,7 +3,7 @@ import asyncio
 import aiounittest
 import websockets
 
-from ..server import Server, Error, User, Connection, Action
+from ..server import Server, Error, User, Connection, ACTION_AUTH
 from ..settings import HOST, PORT
 from .utils import MockSession, MockWebsocket, write, read
 
@@ -35,7 +35,7 @@ class TestServer(aiounittest.AsyncTestCase):
         self.assertEqual(res, "foo")
 
     async def test_under_auth_ok(self):
-        write(self.ws, {"action": Action.AUTH, "payload": {"nickname": "Paul Atreides"}})
+        write(self.ws, {"action": ACTION_AUTH, "payload": {"nickname": "Paul Atreides"}})
         await self.server._auth(self.connection)
         self.assertEqual(True, read(self.ws).get("payload").get("status"))
 
@@ -45,23 +45,23 @@ class TestServer(aiounittest.AsyncTestCase):
         self.assertEqual(Error.INVALID_FORMAT, read(self.ws).get("payload").get("error"))
 
     async def test_nickname_used_under_auth(self):
-        write(self.ws, {"action": Action.AUTH, "payload": {"nickname": "Paul Atreides"}})
+        write(self.ws, {"action": ACTION_AUTH, "payload": {"nickname": "Paul Atreides"}})
         await self.server._auth(self.connection)
         read(self.ws)
-        write(self.ws, {"action": Action.AUTH, "payload": {"nickname": "Paul Atreides"}})
+        write(self.ws, {"action": ACTION_AUTH, "payload": {"nickname": "Paul Atreides"}})
         await self.server._auth(self.connection)
         self.assertEqual(Error.NICKNAME_USED, read(self.ws).get("payload").get("error"))
 
     async def test_already_connected_under_auth(self):
-        write(self.ws, {"action": Action.AUTH, "payload": {"nickname": "Paul Atreides"}})
+        write(self.ws, {"action": ACTION_AUTH, "payload": {"nickname": "Paul Atreides"}})
         await self.server._auth(self.connection)
         token = read(self.ws).get("meta").get("user").get("token")
-        write(self.ws, {"action": Action.AUTH, "payload": {"nickname": "Leto Atreides", "token": token}})
+        write(self.ws, {"action": ACTION_AUTH, "payload": {"nickname": "Leto Atreides", "token": token}})
         await self.server._auth(self.connection)
         self.assertEqual(Error.ALREADY_CONNECTED, read(self.ws).get("payload").get("error"))
 
     async def test_auth_ok(self):
-        write(self.ws, {"action": Action.AUTH, "payload": {"nickname": "Paul Atreides"}})
+        write(self.ws, {"action": ACTION_AUTH, "payload": {"nickname": "Paul Atreides"}})
         res = await self.server.auth(self.connection)
         self.assertEqual(True, res)
 
@@ -90,7 +90,7 @@ class TestServer(aiounittest.AsyncTestCase):
 
     async def test_wait_handle_ok(self):
         asyncio.create_task(self.server.handle(self.ws, ""))
-        write(self.ws, {"action": Action.AUTH, "payload": {"nickname": "Paul Atreides"}})
+        write(self.ws, {"action": ACTION_AUTH, "payload": {"nickname": "Paul Atreides"}})
         await asyncio.sleep(0.1)
         self.assertIs(self.ws, self.server.connections[0].ws)
 
@@ -99,10 +99,10 @@ class TestServer(aiounittest.AsyncTestCase):
 
         ws1 = MockWebsocket()
         asyncio.create_task(self.server.handle(ws1, ""))
-        write(ws1, {"action": Action.AUTH, "payload": {"nickname": "Paul Atreides"}})
+        write(ws1, {"action": ACTION_AUTH, "payload": {"nickname": "Paul Atreides"}})
         ws2 = MockWebsocket()
         asyncio.create_task(self.server.handle(ws2, ""))
-        write(ws2, {"action": Action.AUTH, "payload": {"nickname": "Vladimir Harkonnen"}})
+        write(ws2, {"action": ACTION_AUTH, "payload": {"nickname": "Vladimir Harkonnen"}})
         await asyncio.sleep(0.1)
         res1, res2 = read(ws1), read(ws2)
         self.assertSequenceEqual([], self.server.connections)
@@ -115,7 +115,7 @@ class TestServer(aiounittest.AsyncTestCase):
         for num in range(42):
             ws = MockWebsocket()
             asyncio.create_task(self.server.handle(ws, ""))
-            write(ws, {"action": Action.AUTH, "payload": {"nickname": str(num)}})
+            write(ws, {"action": ACTION_AUTH, "payload": {"nickname": str(num)}})
             sockets.append(ws)
         await asyncio.sleep(0.1)
         results = []
@@ -142,11 +142,11 @@ class TestServer(aiounittest.AsyncTestCase):
     async def test_disconnect_handle_ok(self):
         ws1, ws2 = MockWebsocket(), MockWebsocket()
         asyncio.create_task(self.server.handle(ws1, ""))
-        write(ws1, {"action": Action.AUTH, "payload": {"nickname": "1"}})
+        write(ws1, {"action": ACTION_AUTH, "payload": {"nickname": "1"}})
         await asyncio.sleep(0.1)
         await ws1.close()
         asyncio.create_task(self.server.handle(ws2, ""))
-        write(ws2, {"action": Action.AUTH, "payload": {"nickname": "2"}})
+        write(ws2, {"action": ACTION_AUTH, "payload": {"nickname": "2"}})
         await asyncio.sleep(0.1)
         self.assertIs(ws2, self.server.connections[0].ws)
 
