@@ -8,10 +8,11 @@ import {
   readyConfirmed,
   login,
   readyConfirm,
-  updateMeta,
   pick,
   pickConfirm,
-  pickConfirmed, gameResult, gameWinner
+  pickConfirmed,
+  gameResult,
+  gameWinner
 } from "./actions";
 import {NOTIFICATION_TYPES, WS_ACTION} from "./constants";
 
@@ -20,7 +21,6 @@ let ws = null;
 
 export const receive = message => {
   const {action, payload, meta} = JSON.parse(message.data);
-  console.log(action, payload, meta);
   switch (action) {
     case WS_ACTION.AUTH:
       if (payload.status) {
@@ -50,10 +50,9 @@ export const receive = message => {
       break;
     case WS_ACTION.GAME_RESULT:
       dispatch(gameResult(payload.choices));
-      if (payload.winner){
+      if (payload.winner) {
         dispatch(gameWinner(payload.winner));
       }
-
       break;
     case WS_ACTION.DISCONNECT:
       const message = payload.player ? `${payload.player} disconnected.` : `Session closed: ${payload.reason}`;
@@ -65,14 +64,11 @@ export const receive = message => {
   if (payload.error) {
     displayNotification(payload.error, NOTIFICATION_TYPES.ERROR)
   }
-  if (meta) {
-    dispatch(updateMeta(meta))
-  }
 };
 
-export const getWs = async () => {
+export const initWs = async () => {
   if (ws) {
-    return ws
+    return;
   }
   return new Promise((resolve, reject) => {
     try {
@@ -82,15 +78,14 @@ export const getWs = async () => {
     }
     ws.onmessage = receive;
     ws.onclose = () => {
-      console.log("disconnect");
       ws = null;
       dispatch(closeConnection())
     };
-    ws.onerror = (err) => {
-      console.log("err", err)
+    ws.onerror = () => {
+      displayNotification("Server connection error", NOTIFICATION_TYPES.ERROR);
     };
     ws.onopen = () => {
-      resolve(ws);
+      resolve();
     };
   })
 };
@@ -112,7 +107,6 @@ export const wsPick = (pick) => {
 
 
 export const send = (action, payload) => {
-  console.log(action, payload);
   ws.send(JSON.stringify({action, payload}));
 };
 

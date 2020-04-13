@@ -7,7 +7,6 @@ export const GAME_STATE = {
   PICK: "WAITING_PICKS",
   PICK_SUCCESS: "PICK_SUCCESS",
   RESULT: "RESULT",
-  GAME_END: "GAME_END",
 };
 
 export const WS_ACTION = {

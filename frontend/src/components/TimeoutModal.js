@@ -1,9 +1,8 @@
 import React from "react";
 
-import {CHOICES} from "../../app/constants";
 import {Button, Modal} from "react-bootstrap";
 
-export default class Pick extends React.Component {
+export default class TimeoutModal extends React.PureComponent {
 
   interval = null;
 
@@ -12,7 +11,7 @@ export default class Pick extends React.Component {
     this.state = {
       timeout: props.timeout,
     };
-    this.onPick = this.onPick.bind(this);
+    this.onClick = this.onClick.bind(this);
   }
 
   componentDidMount() {
@@ -31,22 +30,27 @@ export default class Pick extends React.Component {
   }
 
 
-  onPick(value) {
-    this.props.onPick(value);
+  onClick(callback) {
+    callback();
     clearInterval(this.interval);
   }
 
   render() {
+
+    const {header, messageTemplate, buttonsConfig} = this.props;
+
     return (
       <Modal show={true}>
         <Modal.Header>
-          <Modal.Title>You pick</Modal.Title>
+          <Modal.Title>{header}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Until the end of the wait {this.state.timeout} seconds</Modal.Body>
+        <Modal.Body>{messageTemplate.replace("{timeout}", this.state.timeout.toString())}</Modal.Body>
         <Modal.Footer>
-          <Button size="lg" variant="secondary" block onClick={() => this.onPick(CHOICES.ROCK)}>Rock</Button>
-          <Button size="lg" variant="light" block onClick={() => this.onPick(CHOICES.PAPER)}>Paper</Button>
-          <Button size="lg" variant="info" block onClick={() => this.onPick(CHOICES.SCISSORS)}>Scissors</Button>
+          {buttonsConfig.map(conf =>
+            <Button size="lg" variant={conf.variant} block onClick={() => this.onClick(conf.callback)}>
+              {conf.text}
+            </Button>)
+          }
         </Modal.Footer>
       </Modal>
     )

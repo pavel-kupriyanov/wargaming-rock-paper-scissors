@@ -1,5 +1,5 @@
 import React from "react";
-import {Card, Col, Row, Button, Form, InputGroup, FormGroup} from "react-bootstrap";
+import {Card, Col, Row, Button, Form} from "react-bootstrap";
 
 export default class NicknameForm extends React.PureComponent {
 
