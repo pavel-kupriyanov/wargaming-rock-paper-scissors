@@ -7,4 +7,4 @@ ENV REACT_APP_SERVER_URL $REACT_APP_SERVER_URL
 COPY ./ .
 RUN npm install
 
-CMD ["npm", "start"]
+ENTRYPOINT npm start

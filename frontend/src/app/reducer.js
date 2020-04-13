@@ -33,7 +33,6 @@ const initialState = {
 export const store = createStore(reducer, initialState);
 
 export default function reducer(state = initialState, action) {
-  console.log("reducer", state, action);
   const payload = action.payload;
   switch (action.type) {
     case LOGIN:
