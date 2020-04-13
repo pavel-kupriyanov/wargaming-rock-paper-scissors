@@ -1,6 +1,7 @@
 import React from "react";
-
+import PropTypes from 'prop-types';
 import {Button, Modal} from "react-bootstrap";
+import NicknameForm from "./NicknameForm";
 
 export default class TimeoutModal extends React.PureComponent {
 
@@ -55,5 +56,12 @@ export default class TimeoutModal extends React.PureComponent {
       </Modal>
     )
   }
-
 }
+
+TimeoutModal.propTypes = {
+  header: PropTypes.string,
+  messageTemplate: PropTypes.string,
+  buttonsConfig: PropTypes.object,
+  timeout: PropTypes.number
+};
+

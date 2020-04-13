@@ -1,5 +1,6 @@
 import React from "react";
 import {Card, Col, Row, Button, Form} from "react-bootstrap";
+import PropTypes from "prop-types";
 
 export default class NicknameForm extends React.PureComponent {
 
@@ -37,3 +38,7 @@ export default class NicknameForm extends React.PureComponent {
     )
   }
 }
+
+NicknameForm.propTypes = {
+  value: PropTypes.string
+};

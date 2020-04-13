@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from 'prop-types';
 
 import {connect} from "react-redux";
 import {Card, Table} from "react-bootstrap";
@@ -67,11 +68,17 @@ class Game extends React.Component {
         </Card>
         {currentComponent}
       </React.Fragment>
-
     )
   }
-
 }
+
+Game.propTypes = {
+  gameState: PropTypes.string,
+  players: PropTypes.array,
+  timeout: PropTypes.number,
+  current_round: PropTypes.number,
+  winner: PropTypes.string,
+};
 
 const mapStateToProps = state => ({
   gameState: state.gameState,
