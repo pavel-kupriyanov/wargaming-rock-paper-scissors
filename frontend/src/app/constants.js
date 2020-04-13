@@ -19,9 +19,13 @@ export const WS_ACTION = {
 };
 
 export const RESPONSE_ERROR = {
-  INVALID_FORMAT: "Invalid format",
-  ALREADY_CONNECTED: "User already connected now",
-  NICKNAME_USED: "Nickname already used",
+  ALREADY_CONNECTED: "You already connected now. Close other tabs and try again.",
+  NICKNAME_USED: "This nickname already used.",
+};
+
+export const ERROR_CODES = {
+  401: RESPONSE_ERROR.NICKNAME_USED,
+  403: RESPONSE_ERROR.ALREADY_CONNECTED
 };
 
 export const CHOICES = {

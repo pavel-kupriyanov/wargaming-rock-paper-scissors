@@ -14,7 +14,7 @@ import {
   gameResult,
   gameWinner
 } from "./actions";
-import {NOTIFICATION_TYPES, WS_ACTION} from "./constants";
+import {ERROR_CODES, NOTIFICATION_TYPES, WS_ACTION} from "./constants";
 
 
 let ws = null;
@@ -28,7 +28,7 @@ export const receive = message => {
         localStorage.setItem("nickname", meta.user.nickname);
         localStorage.setItem("token", meta.user.token);
       } else {
-        dispatch(loginFailure(payload.error))
+        dispatch(loginFailure(ERROR_CODES[payload.error.code]))
       }
       break;
     case WS_ACTION.GAME_START:
@@ -55,14 +55,14 @@ export const receive = message => {
       }
       break;
     case WS_ACTION.DISCONNECT:
-      const message = payload.player ? `${payload.player} disconnected.` : `Session closed: ${payload.reason}`;
+      const message = payload.player ? `${payload.player} disconnected.` : `Session closed: ${payload.reason.message}`;
       displayNotification(message, NOTIFICATION_TYPES.MESSAGE);
       break;
     default:
       break
   }
   if (payload.error) {
-    displayNotification(payload.error, NOTIFICATION_TYPES.ERROR)
+    displayNotification(ERROR_CODES[payload.error.code], NOTIFICATION_TYPES.ERROR)
   }
 };
 

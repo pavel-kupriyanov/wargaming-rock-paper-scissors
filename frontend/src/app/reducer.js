@@ -50,7 +50,13 @@ export default function reducer(state = initialState, action) {
     case READY_SUCCESS:
       return {...state, gameState: GAME_STATE.READY_SUCCESS};
     case PICK:
-      return {...state, gameState: GAME_STATE.PICK, timeout: payload.timeout, round: payload.current_round};
+      return {
+        ...state,
+        gameState: GAME_STATE.PICK,
+        timeout: payload.timeout,
+        round: payload.current_round,
+        players: state.players.map(x => ({...x, choice: null}))
+      };
     case PICK_CONFIRM:
       return {...state, players: state.players.map(x => x.nickname === state.nickname ? {...x, choice: payload} : x)};
     case PICK_SUCCESS:
